@@ -26,13 +26,11 @@ class CsvCarga
         while ((line = srCadete.ReadLine()) != null)
         {
             string[] datosCadeteria = line.Trim().Split(separador);
-            _ = uint.TryParse(datosCadeteria[0], out uint id);
+            string id = datosCadeteria[0];
             string nombre = datosCadeteria[1];
             string direccion = datosCadeteria[2];
             string telefono = datosCadeteria[3];
-
-            Cadete nuevoCadete = new(id, nombre, direccion, telefono);
-            cadeteria.AgregarCadete(nuevoCadete);
+            cadeteria.AgregarCadete(id, nombre, direccion, telefono);
         }
     }
 }
