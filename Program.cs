@@ -1,6 +1,5 @@
 ﻿using TP_01.models;
 using TP_01.helpers;
-using System.ComponentModel.Design;
 
 class GestionPedidos
 {
@@ -8,16 +7,17 @@ class GestionPedidos
     {
         int numeroPedido = 1;
         bool salir = false;
+
         Cadeteria cadeteria = InicializarCadeteria();
 
         while (!salir)
         {
-            // Console.Clear();
+            Console.Clear();
             Console.WriteLine("===== Gestión de Pedidos =====");
             Console.WriteLine("1. Dar de alta un pedido");
-            Console.WriteLine("2. Asignar pedido a un cadete");
+            Console.WriteLine("2. Asignar cadete a pedido");
             Console.WriteLine("3. Cambiar estado de un pedido");
-            Console.WriteLine("4. Reasignar pedido a otro cadete");
+            Console.WriteLine("4. Reasignar cadete de pedido");
             Console.WriteLine("5. Salir");
             Console.Write("Seleccione una opción: ");
 
@@ -29,7 +29,7 @@ class GestionPedidos
                     numeroPedido++;
                     break;
                 case "2":
-                    AsignarPedido(cadeteria);
+                    AsignarCadeteAPedido(cadeteria);
                     break;
                 case "3":
                     CambiarEstadoPedido(cadeteria);
@@ -51,7 +51,7 @@ class GestionPedidos
             if (!salir)
             {
                 Console.WriteLine("Presione cualquier tecla para continuar...");
-                // Console.ReadKey();
+                Console.ReadKey();
             }
         }
     }
@@ -72,37 +72,40 @@ class GestionPedidos
     {
         Console.WriteLine("==== Alta de Pedido ====");
 
-        Console.Write("Ingrese ID del propietario (cliente): ");
-        string? idClientePropietario = Console.ReadLine();
+        Cliente cliente = CrearClienteDesdeInterfaz();
 
         Console.Write("Ingrese observaciones del pedido (opcional): ");
         string? observaciones = Console.ReadLine();
-        Pedido nuevoPedido = new Pedido(numeroPedido.ToString(), idClientePropietario, observaciones);
+
+        Pedido nuevoPedido = new Pedido(numeroPedido.ToString(), cliente, observaciones);
         cadeteria.AgregarPedido(nuevoPedido);
         Console.WriteLine($"Pedido creado con éxito. ID: {nuevoPedido.Nro}, Estado: {nuevoPedido.Estado}");
     }
 
-
-
-
-    static void AsignarPedido(Cadeteria cadeteria)
+    static void AsignarCadeteAPedido(Cadeteria cadeteria)
     {
 
-        cadeteria.ListaPedidos.ForEach(pedido => System.Console.WriteLine("#", pedido.Nro));
+        System.Console.WriteLine(cadeteria.InformacionDePedidos());
         Console.Write("Ingrese Nro del pedido: ");
+
         string? idPedido = Console.ReadLine();
         Pedido? pedidoBuscado = idPedido == null ? null : BuscarPedidoPorNro(cadeteria, idPedido);
 
         if (pedidoBuscado != null)
         {
-            cadeteria.ListaCadetes.ForEach(cadete => System.Console.WriteLine("#", cadete.Id, cadete.Nombre));
+            System.Console.WriteLine(cadeteria.InformacionDeCadetes());
             Console.Write("Ingrese ID del cadete: ");
             string? idCadete = Console.ReadLine();
+
             Cadete? cadeteAsignado = cadeteria.ListaCadetes.Find(cadete => cadete.Id == idCadete);
             if (cadeteAsignado != null)
             {
-                cadeteria.AsignarPedido(cadeteAsignado.Id, pedidoBuscado);
+                cadeteria.AsignarCadeteAPedido(cadeteAsignado.Id, pedidoBuscado.Nro);
                 Console.WriteLine($"Pedido asignado a {cadeteAsignado.Nombre}");
+            }
+            else
+            {
+                System.Console.WriteLine("No se encontro el cadete.");
             }
         }
         else
@@ -114,6 +117,7 @@ class GestionPedidos
     static void CambiarEstadoPedido(Cadeteria cadeteria)
     {
         Console.WriteLine("==== Cambiar Estado de Pedido ====");
+        System.Console.WriteLine(cadeteria.InformacionDePedidos());
         Console.WriteLine("Ingrese Nro del pedido: ");
         var nroPedido = Console.ReadLine();
 
@@ -134,36 +138,52 @@ class GestionPedidos
 
     static void GenerarInforme(Cadeteria cadeteria)
     {
-        System.Console.WriteLine(cadeteria.GenerarInforme());
+        var informe = "";
+
+        foreach (var cadete in cadeteria.ListaCadetes)
+        {
+            decimal jornal = cadeteria.JornalACobrar(cadete.Id);
+            informe += $"\nCadete: {cadete.Nombre}, Jornal a cobrar: {jornal:C}";
+        }
+
+        System.Console.WriteLine(informe);
     }
+
 
     static void ReasignarPedido(Cadeteria cadeteria)
     {
         Console.WriteLine("==== Reasignar Pedido ====");
+        System.Console.WriteLine(cadeteria.InformacionDePedidos());
+
         Console.Write("Ingrese Nro del pedido: ");
+
         string? idPedido = Console.ReadLine();
 
         if (idPedido != null)
         {
             Pedido? pedidoBuscado = BuscarPedidoPorNro(cadeteria, idPedido);
-            Cadete? cadetePedidoBuscado = BuscarCadetePorNroPedido(cadeteria, idPedido);
-            if (pedidoBuscado != null && cadetePedidoBuscado != null)
+            if (pedidoBuscado != null && pedidoBuscado.CadeteAsignado != null)
             {
-                cadeteria.ListaCadetes.ForEach(cadete =>
-                {
-                    System.Console.WriteLine("#", cadete.Id, cadete.Nombre);
-
-                });
+                System.Console.WriteLine(cadeteria.InformacionDeCadetes());
 
                 Console.Write("Ingrese ID del cadete: ");
+
                 string? idCadete = Console.ReadLine();
                 Cadete? cadeteAsignado = cadeteria.ListaCadetes.Find(cadete => cadete.Id == idCadete);
+
                 if (cadeteAsignado != null)
                 {
-                    cadetePedidoBuscado.EliminarPedido(pedidoBuscado.Nro);
-                    cadeteAsignado.AsignarPedido(pedidoBuscado);
+                    pedidoBuscado.AsignarCadete(cadeteAsignado);
                     Console.WriteLine($"Pedido asignado a {cadeteAsignado.Nombre}");
                 }
+                else
+                {
+                    System.Console.WriteLine("No se encontro el cadete.");
+                }
+            }
+            else
+            {
+                System.Console.WriteLine("No se encontro el cadete.");
             }
         }
         else
@@ -181,8 +201,27 @@ class GestionPedidos
 
     static private Cadete? BuscarCadetePorNroPedido(Cadeteria cadeteria, string nro)
     {
-        return cadeteria.ListaCadetes
-            .FirstOrDefault(cadete => cadete.ListaPedidos.Any(pedido => pedido.Nro == nro));
+        return cadeteria.ListaPedidos
+            .FirstOrDefault(pedido => pedido.Nro == nro)?.CadeteAsignado;
     }
 
+    static Cliente CrearClienteDesdeInterfaz()
+    {
+        Console.WriteLine("==== Crear Nuevo Cliente ====");
+
+        Console.Write("Ingrese el nombre del cliente: ");
+        string? nombre = Console.ReadLine();
+
+        Console.Write("Ingrese la dirección del cliente: ");
+        string? direccion = Console.ReadLine();
+
+        Console.Write("Ingrese el teléfono del cliente: ");
+        string? telefono = Console.ReadLine();
+
+        Console.Write("Ingrese datos de referencia de la dirección (opcional): ");
+        string? datosReferenciaDireccion = Console.ReadLine();
+
+        Cliente cliente = new Cliente(nombre, direccion, telefono, datosReferenciaDireccion);
+        return cliente;
+    }
 }
