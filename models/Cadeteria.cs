@@ -27,17 +27,14 @@ class Cadeteria
         ListaCadetes.Add(nuevoCadete);
     }
 
-    public void AsignarPedido(string idCadeteInicial, Pedido pedido)
+    public void AsignarCadeteAPedido(string idCadete, string idPedido)
     {
-        var cadeteInicial = ListaCadetes.Find(cadete => cadete.Id == idCadeteInicial);
-        if (cadeteInicial != null)
+        Cadete? cadete = ListaCadetes.Find(cadete => cadete.Id == idCadete);
+        if (cadete != null)
         {
-            cadeteInicial.AsignarPedido(pedido.Nro, pedido.IdClientePropietario, pedido.Observaciones);
+            Pedido? pedido = ListaPedidos.Find(pedido => pedido.Nro == idPedido);
+            pedido?.AsignarCadete(cadete);
         }
-    }
-    public string GenerarInforme()
-    {
-        return string.Join("\n", ListaCadetes.Select(cadete => $"Nombre: {cadete.Nombre}, Jornal: {cadete.CalcularJornal()} por {cadete.ListaPedidos.Select(p => p.Estado == EstadoPedido.Entregado).Count()} envios completados"));
     }
 
     public void AgregarPedido(Pedido pedido)
@@ -45,9 +42,30 @@ class Cadeteria
         ListaPedidos.Add(pedido);
     }
 
-    public string verPedidos()
+    public string VerPedidos()
     {
         return string.Join("\n", ListaPedidos.Select(pedido => $"{pedido.Nro}"));
     }
+    public decimal JornalACobrar(string idCadete)
+    {
+        return ListaPedidos.FindAll(pedido =>
+            pedido.CadeteAsignado != null && pedido.CadeteAsignado.Id == idCadete).Count * 500;
+    }
+
+    public string InformacionDePedidos()
+    {
+        return string.Join("\n", ListaPedidos.Select(pedido =>
+            $"Número: {pedido.Nro}, Cliente: {pedido.ClientePropietario.Nombre}, " +
+            $"Estado: {pedido.Estado}, Cadete Asignado: {pedido.CadeteAsignado?.Nombre ?? "No asignado"}, " +
+            $"Observaciones: {pedido.Observaciones}"));
+    }
+    public string InformacionDeCadetes()
+    {
+        return string.Join("\n", ListaCadetes.Select(cadete =>
+            $"ID: {cadete.Id}, Nombre: {cadete.Nombre}, Dirección: {cadete.Direccion}, " +
+            $"Teléfono: {cadete.Telefono}, Jornal a Cobrar: {JornalACobrar(cadete.Id):C}"));
+    }
+
+
 }
 
