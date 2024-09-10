@@ -1,0 +1,14 @@
+[
+  {
+    "Id": "1",
+    "Nombre": "Juan Perez",
+    "Direccion": "Calle Falsa 123",
+    "Telefono": "987-654-3210"
+  },
+  {
+    "Id": "2",
+    "Nombre": "Ana Gomez",
+    "Direccion": "Avenida Siempre Viva 742",
+    "Telefono": "654-321-0987"
+  }
+]

@@ -1,5 +1,5 @@
 namespace TP_01.models;
-class Cadeteria
+public class Cadeteria
 {
     public string? Nombre { get; set; }
     public string? Telefono { get; set; }

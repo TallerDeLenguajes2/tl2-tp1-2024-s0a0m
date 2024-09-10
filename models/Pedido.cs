@@ -6,7 +6,7 @@ public enum EstadoPedido
     NoEntregado,
     Entregado
 }
-class Pedido
+public class Pedido
 {
     public string Nro { get; set; }
     public string Observaciones { get; set; }

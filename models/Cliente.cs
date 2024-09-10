@@ -1,5 +1,5 @@
 namespace TP_01.models;
-class Cliente
+public class Cliente
 {
     public string Nombre { get; set; }
     public string Direccion { get; set; }

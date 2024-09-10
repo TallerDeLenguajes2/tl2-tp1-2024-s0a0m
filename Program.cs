@@ -58,12 +58,39 @@ class GestionPedidos
 
     static Cadeteria InicializarCadeteria()
     {
-        string cadeteFilePath = "./DB/cadete.csv";
-        string cadeteriaFilePath = "./DB/cadeteria.csv";
+
+        Console.WriteLine("Seleccione el tipo de acceso a datos (CSV/JSON):");
+        string? tipoAcceso = Console.ReadLine()?.ToUpper();
+
+        AccesoADatos accesoADatos;
+        string cadeteFilePath = "";
+        string cadeteriaFilePath = "";
+
+        if (tipoAcceso == "CSV")
+        {
+            accesoADatos = new AccesoCSV();
+            cadeteFilePath = "./DB/cadete.csv";
+            cadeteriaFilePath = "./DB/cadeteria.csv";
+        }
+        else if (tipoAcceso == "JSON")
+        {
+            accesoADatos = new AccesoJSON();
+            cadeteFilePath = "./DB/cadete.json";
+            cadeteriaFilePath = "./DB/cadeteria.json";
+
+        }
+        else
+        {
+            Console.WriteLine("Tipo de acceso no válido. Usando CSV por defecto.");
+            accesoADatos = new AccesoCSV();
+            cadeteFilePath = "./DB/cadete.csv";
+            cadeteriaFilePath = "./DB/cadeteria.csv";
+        }
+
         string separadorCsv = ";";
 
-        Cadeteria cadeteria = CsvCarga.CargarCadeteriaDesdeCSV(cadeteriaFilePath, separadorCsv);
-        CsvCarga.CargarCadetesDesdeCSV(cadeteFilePath, separadorCsv, cadeteria);
+        Cadeteria cadeteria = accesoADatos.CargarCadeteria(cadeteriaFilePath, separadorCsv);
+        accesoADatos.CargarCadetes(cadeteFilePath, separadorCsv, cadeteria);
 
         return cadeteria;
     }
