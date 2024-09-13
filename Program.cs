@@ -18,7 +18,8 @@ class GestionPedidos
             Console.WriteLine("2. Asignar cadete a pedido");
             Console.WriteLine("3. Cambiar estado de un pedido");
             Console.WriteLine("4. Reasignar cadete de pedido");
-            Console.WriteLine("5. Salir");
+            Console.WriteLine("5. Mostrar informe");
+            Console.WriteLine("6. Salir");
             Console.Write("Seleccione una opción: ");
 
 
@@ -38,7 +39,7 @@ class GestionPedidos
                     ReasignarPedido(cadeteria);
                     break;
                 case "5":
-                    salir = true;
+                    GenerarInforme(cadeteria);
                     break;
                 case "6":
                     salir = true;

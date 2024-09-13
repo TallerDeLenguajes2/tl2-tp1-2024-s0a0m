@@ -49,7 +49,7 @@ public class Cadeteria
     public decimal JornalACobrar(string idCadete)
     {
         return ListaPedidos.FindAll(pedido =>
-            pedido.CadeteAsignado != null && pedido.CadeteAsignado.Id == idCadete).Count * 500;
+            pedido.CadeteAsignado != null && pedido.CadeteAsignado.Id == idCadete && pedido.Estado == EstadoPedido.Entregado).Count * 500;
     }
 
     public string InformacionDePedidos()
